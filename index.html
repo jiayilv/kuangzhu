@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>矿助 | 个人知识与导航库</title>
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <!-- 顶部导航栏 -->
+  <header class="header">
+    <div class="nav-container">
+      <a href="#" class="logo" id="logo">💎 矿助</a>
+      <nav class="nav-links">
+        <a href="#" class="nav-item active" data-module="首页">首页</a>
+        <a href="#" class="nav-item" data-module="学习">学习</a>
+        <a href="#" class="nav-item" data-module="旅行">旅行</a>
+        <a href="#" class="nav-item" data-module="饮食">饮食</a>
+      </nav>
+      <!-- 搜索框 -->
+      <div class="search-box">
+        <input type="text" id="search-input" placeholder="输入关键词搜索全站内容..." autocomplete="off">
+      </div>
+    </div>
+  </header>
+
+  <!-- 主体内容动态渲染区 -->
+  <main class="main-content" id="content-area">
+    <!-- 内容由 script.js 动态注入 -->
+  </main>
+
+  <!-- 简单页脚 -->
+  <footer class="footer">
+    <p>&copy; 2026 矿助 - 个人知识库. 保持简单，持续构建.</p>
+  </footer>
+
+  <script src="./script.js"></script>
+</body>
+</html>
