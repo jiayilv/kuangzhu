@@ -253,44 +253,30 @@ document.addEventListener('DOMContentLoaded', () => {
            <h4 style="margin: 0; color: var(--text-main); font-size: 1.1rem;">⛏️ 提取教务课表</h4>
            <button id="close-import-modal-btn" style="background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--text-muted);">&times;</button>
         </div>
-        <p style="margin-bottom: 1.5rem; font-size: 0.95rem; color: var(--text-muted);">无需手动查 Cookie！网站提供了一个“小书签”按键。它会在你的教务系统网页里自动抓取课表并带回来。</p>
         
-        <div style="margin-bottom: 1.5rem;">
-          <strong style="display:inline-block; margin-bottom: 0.5rem; color: var(--primary-color);">第一步：设定要提取的学期</strong>
-          <div style="display: flex; gap: 1rem;">
-            <div style="flex: 1;">
-              <label for="bm-xnm" style="display: block; font-size: 0.9rem; margin-bottom: 0.3rem;">学年 (如 2023)</label>
-              <input type="text" id="bm-xnm" value="2023" style="width: 100%; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: var(--radius-md); outline: none;">
-            </div>
-            <div style="flex: 1;">
-              <label for="bm-xqm" style="display: block; font-size: 0.9rem; margin-bottom: 0.3rem;">学期 (如 3 或 12)</label>
-              <input type="text" id="bm-xqm" value="3" style="width: 100%; padding: 0.5rem; border: 1px solid var(--border-color); border-radius: var(--radius-md); outline: none;">
-            </div>
+        <div id="paste-content">
+          <div style="padding: 1rem; background: #eff6ff; color: #1d4ed8; border-left: 4px solid var(--primary-color); border-radius: 4px; margin-bottom: 1.5rem; font-size: 0.9rem;">
+            💡 提示：本页支持教务系统【个人课表查询】列表的直接粘贴！更简单、成功率更高！
           </div>
-        </div>
-
-        <div style="margin-bottom: 1.5rem;">
-          <strong style="display:inline-block; margin-bottom: 0.5rem; color: var(--primary-color);">第二步：添加提取书签</strong>
-          <p style="font-size: 0.95rem; color: var(--text-muted); margin-bottom: 0.8rem;">
-            请使用鼠标按住下方蓝色按钮，把它<strong>往上拖拽</strong>到你的浏览器标题下方的【书签栏】里。
-          </p>
-          <div style="text-align: center; padding: 1.5rem; border: 2px dashed var(--border-color); border-radius: var(--radius-md); background: #f9fafb;">
-            <a id="bookmark-btn" href="#" style="background: var(--primary-color); color: white; padding: 0.75rem 1.5rem; border-radius: 999px; text-decoration: none; font-weight: 600; display: inline-block; cursor: grab; box-shadow: var(--shadow-sm); transition: transform 0.2s;">⛏️ 提取矿大课表 (拖拽我)</a>
+          
+          <div style="margin-bottom: 1.5rem;">
+            <p style="font-size: 0.95rem; color: var(--text-muted); line-height: 1.6;">
+              1. 登录并打开教务系统的 <a href="http://jwxt.cumt.edu.cn/jwglxt/kbcx/xskbcx_cxXskbcxIndex.html?gnmkdm=N2151" target="_blank" style="color: var(--primary-color); text-decoration: underline; font-weight: 500;">学生个人课表查询</a>（建议使用列表形式的页面）。<br>
+              2. 直接按下键盘的 <b>Ctrl + A</b>（全选），再按 <b>Ctrl + C</b>（复制全部文字内容）。<br>
+              3. 回到本页，鼠标点击下方虚线框内部，按下 <b>Ctrl + V</b> 粘贴！
+            </p>
           </div>
-        </div>
-
-        <div style="margin-bottom: 0.5rem;">
-          <strong style="display:inline-block; margin-bottom: 0.5rem; color: var(--primary-color);">第三步：进入教务系统并点击提取</strong>
-          <p style="font-size: 0.95rem; color: var(--text-muted); line-height: 1.6;">
-            1. 在电脑浏览器新窗口打开 <a href="http://jwxt.cumt.edu.cn/jwglxt/kbcx/xskbcx_cxXskbcxIndex.html?gnmkdm=N2151&layout=default" target="_blank" style="color: var(--primary-color); text-decoration: underline; font-weight: 500;">教务系统课表页面</a>（遇到登录页面请先登录）。<br>
-            2. 成功进入页面后，直接<strong>点击</strong>你刚刚保存在顶部书签栏里的 <b>“⛏️ 提取矿大课表”</b>。<br>
-            3. 等待网页拉取数据并自动跳回本站！然后你可以在右上角选择【第一周周一】的时间。
-          </p>
+          
+          <div id="schedule-paste-area" contenteditable="true" style="border: 2px dashed var(--primary-color); border-radius: var(--radius-md); background: #f8fafc; min-height: 120px; padding: 2rem; text-align: center; color: var(--text-muted); font-size: 1.1rem; outline: none; cursor: pointer;">
+            👉 点击这里，按 Ctrl+V 粘贴
+          </div>
+          <p id="paste-error" style="color: #dc2626; font-size: 0.9rem; display: none; margin-top: 0.5rem;"></p>
         </div>
       </div>
     `;
 
     const formattedData = savedSchedule ? formatRawKbList(savedSchedule) : [];
+
     let currentWeek = 1;
     
     function renderWeek(weekNum, courseData) {
@@ -371,42 +357,74 @@ document.addEventListener('DOMContentLoaded', () => {
     const clearBtn = document.getElementById('clear-schedule-btn');
     if (clearBtn) {
        clearBtn.addEventListener('click', () => {
-          if (confirm('确定要清除本地保存的课表数据吗？')) {
-             localStorage.removeItem('kuangzhu_schedule');
-             renderScheduleModule();
-          }
+          localStorage.removeItem('kuangzhu_schedule');
+          renderScheduleModule();
        });
     }
 
     document.getElementById('import-schedule-btn').addEventListener('click', () => {
       const modal = document.getElementById('import-modal');
       modal.style.display = modal.style.display === 'none' ? 'block' : 'none';
-      if(modal.style.display === 'block') {
-         updateBookmarklet();
-      }
     });
 
     document.getElementById('close-import-modal-btn').addEventListener('click', () => {
       document.getElementById('import-modal').style.display = 'none';
     });
 
-    // 动态生成书签代码
-    const xnmInput = document.getElementById('bm-xnm');
-    const xqmInput = document.getElementById('bm-xqm');
-    const bBtn = document.getElementById('bookmark-btn');
+    // Handle HTML & Text Paste Parsing
+    const pasteArea = document.getElementById('schedule-paste-area');
+    if (pasteArea) {
+        pasteArea.addEventListener('paste', (e) => {
+            e.preventDefault();
+            const html = e.clipboardData.getData('text/html');
+            const plain = e.clipboardData.getData('text/plain');
+            const errorEl = document.getElementById('paste-error');
+            
+            if (!html && !plain) {
+                errorEl.textContent = '❌ 未检测到粘贴内容！请先复制。';
+                errorEl.style.display = 'block';
+                return;
+            }
+            
+            try {
+                let parsedCourses = [];
+                // 优先尝试“个人课表查询”的纯文本列表模式因为更稳定
+                if (plain && plain.includes('周数：') && plain.includes('上课地点：')) {
+                    parsedCourses = parseTextSchedule(plain);
+                }
+                
+                // 退后尝试复杂课表表格结构
+                if ((!parsedCourses || parsedCourses.length === 0) && html) {
+                    parsedCourses = parseHtmlSchedule(html);
+                }
 
-    function updateBookmarklet() {
-      if(!xnmInput || !xqmInput || !bBtn) return;
-      const xnm = xnmInput.value.trim();
-      const xqm = xqmInput.value.trim();
-      const appUrl = window.location.origin;
-      const code = `javascript:(function(){var m=document.createElement('div');m.innerHTML='正在提取，请稍等...';m.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);color:#fff;display:flex;align-items:center;justify-content:center;font-size:20px;z-index:999999;font-weight:bold;';document.body.appendChild(m);fetch('/jwglxt/kbcx/xskbcx_cxXsKb.html?gnmkdm=N2151',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8','X-Requested-With':'XMLHttpRequest'},body:'xnm=${xnm}&xqm=${xqm}'}).then(r=>r.text()).then(t=>{try{var d=JSON.parse(t);if(d&&d.kbList){window.location.href='${appUrl}?action=sync&data='+encodeURIComponent(JSON.stringify(d.kbList));return;}}catch(e){}alert('提取失败！请确保你已经成功登录，且当前学期真有课。');m.remove();}).catch(e=>{alert('网络请求出错: '+e.message);m.remove();});})();`;
-      bBtn.setAttribute('href', code);
-    }
+                if (!parsedCourses || parsedCourses.length === 0) {
+                    errorEl.textContent = '❌ 未能在粘贴信息中找到课表，或格式不支持。请尝试进入“个人课表查询”以列表形式复制。';
+                    errorEl.style.display = 'block';
+                    return;
+                }
+                
+                // 将自定义解析结构，转换为格式统一的原生 kbList 结构
+                const kbListSimulated = parsedCourses.map(c => ({
+                    kcmc: c.course,
+                    xm: c.teacher,
+                    cdmc: c.location,
+                    xqj: c.weekday.toString(),
+                    jcs: c.rawJcs,
+                    zcd: c.rawZcd
+                }));
 
-    if (xnmInput && xqmInput) {
-      xnmInput.addEventListener('input', updateBookmarklet);
-      xqmInput.addEventListener('input', updateBookmarklet);
+                localStorage.setItem('kuangzhu_schedule', JSON.stringify(kbListSimulated));
+                errorEl.style.color = '#10b981';
+                errorEl.textContent = `✅ 成功解析并导入 ${kbListSimulated.length} 节课！`;
+                errorEl.style.display = 'block';
+                setTimeout(() => { renderScheduleModule(); }, 1500);
+                
+            } catch (err) {
+                errorEl.textContent = '❌ 解析出错：' + err.message;
+                errorEl.style.display = 'block';
+            }
+        });
     }
   }
 
@@ -457,6 +475,226 @@ document.addEventListener('DOMContentLoaded', () => {
        }
     });
     return weeks;
+  }
+
+  // 文本列表形式课表解析器 (支持个人课表查询列表复制模式)
+  function parseTextSchedule(text) {
+      const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+      const courses = [];
+      let currentWeekday = null;
+      let currentSectionRange = null;
+
+      const weekdayMap = {
+          '星期一': 1, '星期二': 2, '星期三': 3, '星期四': 4,
+          '星期五': 5, '星期六': 6, '星期日': 7
+      };
+
+      for (let line of lines) {
+          let matchedWk = null;
+          for (const wk in weekdayMap) {
+              if (line.startsWith(wk)) {
+                  matchedWk = weekdayMap[wk];
+                  break;
+              }
+          }
+          if (matchedWk) {
+              currentWeekday = matchedWk;
+              // 判断是否独占一行
+              if (line.replace(new RegExp(`^星期[一二三四五六日]`), '').trim() === '') {
+                  continue;
+              }
+          }
+
+          const secMatch = line.match(/^(\d+)-(\d+)(?:\s+|$)/);
+          if (secMatch) {
+              currentSectionRange = {
+                  start: parseInt(secMatch[1]),
+                  end: parseInt(secMatch[2])
+              };
+              const remaining = line.slice(secMatch[0].length).trim();
+              if (remaining) {
+                  line = remaining;
+              } else {
+                  continue;
+              }
+          }
+
+          if (currentWeekday && currentSectionRange && line.includes('周数：')) {
+              const courseNameMatch = line.match(/^(.*?)[●○◆◇★]*\s*周数：/);
+              const cName = courseNameMatch ? courseNameMatch[1].replace(/【调】/g, '').trim() : "未知课程";
+              
+              const zcdMatch = line.match(/周数：(.*?)(?:\s+校区|\s+上课地点|$)/);
+              const zcd = zcdMatch ? zcdMatch[1].trim() : "";
+              
+              const locMatch = line.match(/上课地点：(.*?)(?:\s+教师|$)/);
+              const loc = locMatch ? locMatch[1].trim() : "待定";
+              
+              const teaMatch = line.match(/教师\s*[：:]\s*(.*?)(?:\s+教学班|$)/);
+              const tea = teaMatch ? teaMatch[1].trim() : "未知老师";
+              
+              if (cName && cName !== '未知课程') {
+                  courses.push({
+                      course: cName,
+                      teacher: tea,
+                      location: loc,
+                      weekday: currentWeekday,
+                      sections: Array.from({length: currentSectionRange.end - currentSectionRange.start + 1}, (_, i) => currentSectionRange.start + i),
+                      rawJcs: `${currentSectionRange.start}-${currentSectionRange.end}`,
+                      rawZcd: zcd
+                  });
+              }
+          }
+      }
+      
+      // 去重
+      const uniqueCourses = [];
+      const seen = new Set();
+      courses.forEach(c => {
+         const key = `${c.weekday}-${c.rawJcs}-${c.course}-${c.rawZcd}`;
+         if (!seen.has(key)) {
+             seen.add(key);
+             uniqueCourses.push(c);
+         }
+      });
+
+      return uniqueCourses;
+  }
+
+  // 核心 HTML 表格解析器：用于处理浏览器复制保留的富文本DOM结构
+  function parseHtmlSchedule(html) {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, 'text/html');
+      const tables = doc.querySelectorAll('table');
+      let table = null;
+      
+      // 寻找教务系统的课表主表格：通常包含“星期一”、“节次”等字眼
+      for(const tb of tables) {
+          if (tb.textContent.includes('星期一') || tb.textContent.includes('节次')) {
+              table = tb;
+              break;
+          }
+      }
+      if (!table) table = tables[0];
+      if (!table) return [];
+
+      const grid = [];
+      // 将 rowspan 和 colspan 展开为完整的二维网格，因为课表往往具有大跨度的单元格
+      table.querySelectorAll('tr').forEach((tr, rIndex) => {
+         grid[rIndex] = grid[rIndex] || [];
+         let cIndex = 0;
+         tr.querySelectorAll('td, th').forEach(cell => {
+             while(grid[rIndex][cIndex]) cIndex++;
+             const rowSpan = parseInt(cell.getAttribute('rowspan')) || 1;
+             const colSpan = parseInt(cell.getAttribute('colspan')) || 1;
+             
+             // 安全提取文本及其换行，避免断开的DOM节点导致 innerText 糊在一起
+             let cellHtml = cell.innerHTML;
+             cellHtml = cellHtml.replace(/<br\s*\/?>/gi, '\n')
+                                .replace(/<\/p>|<\/div>|<\/h\d>|<\/li>|<\/tr>/gi, '\n');
+             const cellDoc = new DOMParser().parseFromString(cellHtml, 'text/html');
+             const lines = cellDoc.body.textContent.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+             const rawText = lines.join('\n');
+             
+             for(let r=0; r<rowSpan; r++) {
+                 for(let c=0; c<colSpan; c++) {
+                     grid[rIndex+r] = grid[rIndex+r] || [];
+                     grid[rIndex+r][cIndex+c] = { lines: lines, raw: rawText };
+                 }
+             }
+             cIndex += colSpan;
+         });
+      });
+
+      let weekdayCols = {};
+      // 找到表示星期几的列索引
+      for(let r=0; r < grid.length; r++) {
+          for(let c=0; c < grid[r].length; c++) {
+             if (!grid[r][c]) continue;
+             const text = grid[r][c].raw.replace(/\s+/g, '');
+             if (text.includes('星期一')) weekdayCols[c] = 1;
+             if (text.includes('星期二')) weekdayCols[c] = 2;
+             if (text.includes('星期三')) weekdayCols[c] = 3;
+             if (text.includes('星期四')) weekdayCols[c] = 4;
+             if (text.includes('星期五')) weekdayCols[c] = 5;
+             if (text.includes('星期六')) weekdayCols[c] = 6;
+             if (text.includes('星期日')) weekdayCols[c] = 7;
+          }
+          if (Object.keys(weekdayCols).length > 0) break;
+      }
+
+      const courses = [];
+      // 遍历所有数据行，寻找含有课程的单元格
+      for(let r=0; r < grid.length; r++) {
+          const useFallback = Object.keys(weekdayCols).length === 0;
+
+          for(let c=0; c < grid[r].length; c++) {
+              let weekday = null;
+              if (useFallback) {
+                 // 若未发现明显的星期表头，则假定最右侧的7列为周一到周日（正方系统典型特征）
+                 const dayOffset = 7 - (grid[r].length - c);
+                 if (dayOffset >= 0 && dayOffset <= 6) weekday = dayOffset + 1;
+              } else {
+                 weekday = weekdayCols[c];
+              }
+
+              if (!weekday) continue;
+              const cellData = grid[r][c];
+              if (!cellData) continue;
+              
+              const lines = cellData.lines;
+              if (lines.length === 0 || !cellData.raw.includes('节)')) continue; // 快速过滤非课程文本
+
+              // 按照换行符分割，查找特征如: (3-4节)1-18周
+              for(let i=0; i<lines.length; i++) {
+                  const line = lines[i];
+                  const match = line.match(/\(.*?(?:第)?(\d+)-(\d+)节\s*\)(.*?周)/);
+                  if (match) {
+                     const courseName = lines[i-1] ? lines[i-1] : "未知课程";
+                     if (courseName.includes('星期') || courseName === '上午' || courseName === '下午' || courseName === '晚上') continue;
+
+                     const startSection = parseInt(match[1]);
+                     const endSection = parseInt(match[2]);
+                     const sections = [];
+                     for(let s=startSection; s<=endSection; s++) sections.push(s);
+                     
+                     let location = "待定";
+                     let teacher = "未知老师";
+                     
+                     // 探针预测位置与老师：通常在时间节次之后的两行内
+                     if (lines[i+1] && !lines[i+1].includes('节)')) {
+                         location = lines[i+1];
+                         if (lines[i+2] && !lines[i+2].includes('节)')) {
+                             teacher = lines[i+2];
+                         }
+                     }
+
+                     courses.push({
+                         course: courseName.replace(/●|○|◆|◇|★|【调】/g, ''),
+                         teacher: teacher,
+                         location: location,
+                         weekday: weekday,
+                         sections: sections,
+                         rawJcs: `${startSection}-${endSection}`,
+                         rawZcd: match[3]
+                     });
+                  }
+              }
+          }
+      }
+      
+      // 去重机制：因为合并的单元格在二维数组展开后会导致相同课程在多个行中被重复扫描
+      const uniqueCourses = [];
+      const seen = new Set();
+      courses.forEach(c => {
+         // 生成唯一标识：星期几-节次-课程名
+         const key = `${c.weekday}-${c.rawJcs}-${c.course}`;
+         if (!seen.has(key)) {
+             seen.add(key);
+             uniqueCourses.push(c);
+         }
+      });
+      
+      return uniqueCourses;
   }
 
   // 渲染搜索结果页
