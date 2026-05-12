@@ -154,6 +154,7 @@ body {
   transition: transform 0.2s, box-shadow 0.2s;
   display: flex;
   flex-direction: column;
+  cursor: pointer;
 }
 
 .card:hover {
@@ -204,6 +205,55 @@ body {
   color: var(--text-muted);
   padding: 0.2rem 0.5rem;
   border-radius: 0.25rem;
+}
+
+/* ======== 文章阅读视图 ======== */
+.article-view {
+  background: var(--card-bg);
+  padding: 2.5rem;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  animation: fadeIn 0.3s ease-out;
+  min-height: 60vh;
+}
+
+.back-btn {
+  background: none;
+  border: none;
+  color: var(--primary-color);
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  margin-bottom: 2rem;
+  font-size: 1rem;
+  display: inline-flex;
+  align-items: center;
+  transition: opacity 0.2s;
+}
+
+.back-btn:hover {
+  opacity: 0.8;
+  text-decoration: underline;
+}
+
+.article-header {
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.article-title {
+  font-size: 1.8rem;
+  color: var(--text-main);
+  margin: 1rem 0 0.5rem;
+  line-height: 1.4;
+}
+
+.article-body {
+  font-size: 1.1rem;
+  line-height: 1.8;
+  color: var(--text-main);
+  white-space: pre-wrap;
 }
 
 /* 模块首页入口卡片 */

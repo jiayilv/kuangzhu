@@ -720,7 +720,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const tagsHtml = item.tags.map(tag => `<span class="tag">#${tag}</span>`).join('');
       
       return `
-        <div class="card">
+        <div class="card" onclick="window.renderArticle('${item.id}')">
           <span class="card-module-badge">${item.module}</span>
           <h3 class="card-title">${item.title}</h3>
           <p class="card-content">${item.content}</p>
@@ -735,9 +735,39 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ======= 暴露给内联 onclick 的全局方法 =======
+  window.renderArticle = function(id) {
+    const article = allData.find(item => item.id === id);
+    if (!article) return;
+    
+    const tagsHtml = article.tags && article.tags.length ? article.tags.map(tag => `<span class="tag">#${tag}</span>`).join('') : '';
+
+    const articleHtml = `
+      <div class="article-view">
+        <button class="back-btn" onclick="window.renderPageGlobal()">← 返回</button>
+        <div class="article-header">
+          <span class="card-module-badge">${article.module}</span>
+          <h1 class="article-title">${article.title}</h1>
+          <div class="card-tags" style="margin-top: 1rem;">
+            ${tagsHtml}
+          </div>
+        </div>
+        <div class="article-body">
+          <p>${article.content.replace(/\\n/g, '<br>')}</p>
+        </div>
+      </div>
+    `;
+    
+    contentArea.innerHTML = articleHtml;
+    window.scrollTo(0, 0);
+  }
+
   window.switchToModule = function(moduleName) {
     currentModule = moduleName;
     updateNavActiveState();
+    renderPage();
+  };
+
+  window.renderPageGlobal = function() {
     renderPage();
   };
 });
